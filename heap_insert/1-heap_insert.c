@@ -5,14 +5,13 @@
  * @root: the root node.
  * Return: the length of the binary tree.
  */
-int length(heap_t **root)
+int length(heap_t *root)
 {
-	if (!root || !*root)
+	if (!root)
 		return (0);
 
-	return (length(&((*root)->left)) + length(&((*root)->right)) + 1);
+	return (length(root->left) + length(root->right) + 1);
 }
-
 
 /**
  * heap_insert - insert a node into the max heap.
@@ -23,7 +22,8 @@ int length(heap_t **root)
 heap_t *heap_insert(heap_t **root, int value)
 {
 	heap_t *node = NULL;
-	int len = (length(root) - 1) / 2;
+	heap_t *temp = NULL;
+	int len = (length(*root) - 1) / 2;
 
 	if (!root)
 		return (NULL);
@@ -33,23 +33,36 @@ heap_t *heap_insert(heap_t **root, int value)
 	if (!node)
 		return (NULL);
 
-	node = binary_tree_node(*root, value);
+	node = binary_tree_node(NULL, value);
 
 	if (!*root)
 	{
 		*root = node;
 		return (node);
 	}
-	if (len == 0)
+
+	if (!len)
 		return (NULL);
-	if (len > 0 && len % 2)
-		(*root) = (*root)->left;
-	if (len > 0 && !(len % 2))
-		*root = (*root)->right;
-	node->(*root) = *root;
-	if (!(*root)->left)
-		(*root)->left = node;
+
+	temp = *root;
+
+	while (len > 1)
+	{
+		if (len % 2)
+			temp = temp->left;
+		else
+			temp = temp->right;
+
+		len = (len - 1) / 2;
+	}
+
+	node->parent = temp;
+
+	if (!temp->left)
+		temp->left = node;
 	else
-		(*root)->right = node;
+		temp->right = node;
+
 	return (node);
 }
+
